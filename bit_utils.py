@@ -4,29 +4,32 @@ import tensorflow as tf
 from tensorflow.python.ops import variable_scope
 
 
-__origin_get_variable = tf.get_variable
+_origin_get_variable = tf.get_variable
+_object_stack = []
+
+def _new_get_variable(*args, **kwargs):
+    v = _origin_get_variable(*args, **kwargs)
+    if len(_object_stack) != 0:
+        return _object_stack[-1]._fn(v)
+    else:
+        return v
 
 
 class TFVariableReplaceHelper(object):
-    object_stack = []
-
     def __init__(self, fn):
         self._old_get_variable = None
         self._fn = fn
 
-    @classmethod
-    def new_get_variable(*args, **kwargs):
-        v = __origin_get_variable(*args, **kwargs)
-        return object_stack[-1]._fn(v)
-
     def __enter__(self):
-        object_stack.append(self)
+        global _object_stack
+        _object_stack.append(self)
         self._old_get_variable = tf.get_variable
-        tf.get_variable = new_get_variable
-        variable_scope.get_variable = new_get_variable
+        tf.get_variable = _new_get_variable
+        variable_scope.get_variable = _new_get_variable
 
     def __exit__(self, *args):
-        object_stack.pop()
+        global _object_stack
+        _object_stack.pop()
         tf.get_variable = self._old_get_variable
         variable_scope.get_variable = self._old_get_variable
 
