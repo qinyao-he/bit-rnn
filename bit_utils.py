@@ -7,6 +7,7 @@ from tensorflow.python.ops import variable_scope
 _origin_get_variable = tf.get_variable
 _object_stack = []
 
+
 def _new_get_variable(*args, **kwargs):
     v = _origin_get_variable(*args, **kwargs)
     if len(_object_stack) != 0:
@@ -39,17 +40,23 @@ def replace_variable(fn):
 
 
 def round_bit(x, bit):
+    if bit == 32:
+        return x
+    g = tf.get_default_graph()
     k = 2**bit - 1
-    with tf.get_default_graph().gradient_override_map({'Floor': 'Identity'}):
+    with g.gradient_override_map({'Floor': 'Identity'}):
         return tf.round(x * k) / k
 
 
 def quantize_w(x, bit):
-    scale = tf.reduce_mean(tf.abs(x)) * 2
-    with tf.get_default_graph().gradient_override_map({'clip_by_value': 'Identity'}):
+    if bit == 32:
+        return x
+    g = tf.get_default_graph()
+    # do not compute gradient with respect to scale
+    scale = tf.stop_gradient(tf.reduce_mean(tf.abs(x)) * 2)
+    with g.gradient_override_map({'clip_by_value': 'Identity'}):
         return (round_bit(tf.clip_by_value(x / scale, -0.5, 0.5) + 0.5,
                           bit=bit) - 0.5) * scale
-
 
 
 round_bit_1bit = functools.partial(round_bit, bit=1)
