@@ -48,15 +48,23 @@ def round_bit(x, bit):
         return tf.round(x * k) / k
 
 
+_grad_defined = False
+if not _grad_defined:
+    @tf.RegisterGradient("IdentityMaxMinGrad")
+    def _identigy_max_min_grad(op, grad):
+        return grad, None
+
+
 def quantize_w(x, bit):
     if bit == 32:
         return x
     g = tf.get_default_graph()
     # do not compute gradient with respect to scale
     scale = tf.stop_gradient(tf.reduce_mean(tf.abs(x)) * 2)
-    with g.gradient_override_map({'clip_by_value': 'Identity'}):
-        return (round_bit(tf.clip_by_value(x / scale, -0.5, 0.5) + 0.5,
-                          bit=bit) - 0.5) * scale
+    with g.gradient_override_map({'Minimum': 'IdentityMaxMinGrad'}):
+        with g.gradient_override_map({'Maximum': 'IdentityMaxMinGrad'}):
+            return (round_bit(tf.clip_by_value(x / scale, -0.5, 0.5) + 0.5,
+                              bit=bit) - 0.5) * scale
 
 
 round_bit_1bit = functools.partial(round_bit, bit=1)
