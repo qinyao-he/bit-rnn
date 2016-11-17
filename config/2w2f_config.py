@@ -5,7 +5,7 @@ class Config(object):
     num_steps = 20
     hidden_size = 300
     max_epoch = 100
-    keep_prob = 0.75
+    keep_prob = 0.5
     batch_size = 20
     vocab_size = 10000
     nr_epoch_first_stage = 40
