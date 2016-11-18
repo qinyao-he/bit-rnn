@@ -82,7 +82,7 @@ def main(_):
         for i in range(config.max_epoch):
             m.assign_lr(session, get_learning_rate(i, config))
 
-            print("Epoch: %d Learning rate: %.3f"
+            print("Epoch: %d Learning rate: %f"
                   % (i + 1, session.run(m.lr)))
             train_perplexity = run_epoch(
                 session, m, train_data, m.train_op, verbose=True)
