@@ -7,7 +7,7 @@ import tensorflow as tf
 from tensorflow.models.rnn.ptb import reader
 
 import bit_utils
-from bit_rnn_cell import BitGRUCell
+from bit_rnn_cell import BitGRUCell, BitLSTMCell
 
 
 class PTBModel(object):
@@ -22,22 +22,24 @@ class PTBModel(object):
         self._input_data = tf.placeholder(tf.int32, [batch_size, num_steps])
         self._targets = tf.placeholder(tf.int32, [batch_size, num_steps])
 
-        gru_cell = BitGRUCell(size, w_bit=config.w_bit, f_bit=config.f_bit)
+        if 'cell_type' not in dir(config) or config.cell_type == 'gru':
+            cell = BitGRUCell(size, w_bit=config.w_bit, f_bit=config.f_bit)
+        elif config.cell_type == 'lstm':
+            cell = BitLSTMCell(size, w_bit=config.w_bit, f_bit=config.f_bit)
         if is_training and config.keep_prob < 1:
-            gru_cell = tf.nn.rnn_cell.DropoutWrapper(
-                    gru_cell, output_keep_prob=config.keep_prob)
-        cell = tf.nn.rnn_cell.MultiRNNCell([gru_cell] * config.num_layers)
+            cell = tf.nn.rnn_cell.DropoutWrapper(
+                cell, output_keep_prob=config.keep_prob)
+        cell = tf.nn.rnn_cell.MultiRNNCell([cell] * config.num_layers)
 
         self._initial_state = cell.zero_state(batch_size, tf.float32)
         self._initial_state = bit_utils.round_bit(
             tf.sigmoid(self._initial_state), bit=config.f_bit)
 
-        with tf.device("/cpu:0"):
-            embedding = tf.get_variable(
-                "embedding",
-                [vocab_size, size],
-                initializer=tf.random_uniform_initializer())
-            inputs = tf.nn.embedding_lookup(embedding, self._input_data)
+        embedding = tf.get_variable(
+            "embedding",
+            [vocab_size, size],
+            initializer=tf.random_uniform_initializer())
+        inputs = tf.nn.embedding_lookup(embedding, self._input_data)
 
         inputs = bit_utils.round_bit(tf.nn.relu(inputs), bit=config.f_bit)
 
