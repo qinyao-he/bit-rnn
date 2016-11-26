@@ -10,5 +10,6 @@ class Config(object):
     vocab_size = 10000
     nr_epoch_first_stage = 40
     nr_epoch_second_stage = 80
-    w_bit = 32
-    f_bit = 32
+    w_bit = 1
+    f_bit = 2
+    cell_type = 'gru'

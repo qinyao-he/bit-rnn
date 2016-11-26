@@ -10,5 +10,6 @@ class Config(object):
     vocab_size = 10000
     nr_epoch_first_stage = 40
     nr_epoch_second_stage = 80
-    w_bit = 8
-    f_bit = 8
+    w_bit = 4
+    f_bit = 4
+    cell_type = 'lstm'
