@@ -60,7 +60,7 @@ def quantize_w(x, bit):
         return x
     g = tf.get_default_graph()
     # do not compute gradient with respect to scale
-    scale = tf.stop_gradient(tf.reduce_mean(tf.abs(x)) * 2)
+    scale = tf.stop_gradient(tf.reduce_mean(tf.abs(x)) * 2.5)
     with g.gradient_override_map({'Minimum': 'IdentityMaxMinGrad'}):
         with g.gradient_override_map({'Maximum': 'IdentityMaxMinGrad'}):
             return (round_bit(tf.clip_by_value(x / scale, -0.5, 0.5) + 0.5,
