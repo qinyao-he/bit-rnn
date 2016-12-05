@@ -18,3 +18,25 @@ Currently default is 2-bit weights and activations. You may edit the config file
 
 ## Support
 Submit issue for problem relate to the code itself. Send email to the author for general question about the paper.
+
+## Citation
+Please cite follow if you use our code in your research:
+```
+@article{DBLP:journals/corr/HeWZWYZZ16,
+  author    = {Qinyao He and
+               He Wen and
+               Shuchang Zhou and
+               Yuxin Wu and
+               Cong Yao and
+               Xinyu Zhou and
+               Yuheng Zou},
+  title     = {Effective Quantization Methods for Recurrent Neural Networks},
+  journal   = {CoRR},
+  volume    = {abs/1611.10176},
+  year      = {2016},
+  url       = {http://arxiv.org/abs/1611.10176},
+  timestamp = {Thu, 01 Dec 2016 19:32:08 +0100},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/HeWZWYZZ16},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+```
