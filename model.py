@@ -29,7 +29,8 @@ class PTBModel(object):
         if is_training and config.keep_prob < 1:
             cell = tf.nn.rnn_cell.DropoutWrapper(
                 cell, output_keep_prob=config.keep_prob)
-        cell = tf.nn.rnn_cell.MultiRNNCell([cell] * config.num_layers)
+        cell = tf.nn.rnn_cell.MultiRNNCell([cell] * config.num_layers,
+                                           state_is_tuple=False)
 
         self._initial_state = cell.zero_state(batch_size, tf.float32)
         self._initial_state = bit_utils.round_bit(
