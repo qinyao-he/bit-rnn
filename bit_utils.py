@@ -44,7 +44,7 @@ def round_bit(x, bit):
         return x
     g = tf.get_default_graph()
     k = 2**bit - 1
-    with g.gradient_override_map({'Floor': 'Identity'}):
+    with g.gradient_override_map({'Round': 'Identity'}):
         return tf.round(x * k) / k
 
 
