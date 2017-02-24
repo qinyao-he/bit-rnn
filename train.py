@@ -5,7 +5,7 @@ import importlib
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.models.rnn.ptb import reader
+import reader
 
 import bit_utils
 from bit_rnn_cell import BitGRUCell
@@ -68,7 +68,7 @@ def main(_):
             mvalid = PTBModel(is_training=False, config=config)
             mtest = PTBModel(is_training=False, config=eval_config)
 
-        tf.initialize_all_variables().run()
+        tf.global_variables_initializer().run()
 
         def get_learning_rate(epoch, config):
             base_lr = config.learning_rate
