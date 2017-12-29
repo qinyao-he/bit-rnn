@@ -61,7 +61,7 @@ def main(_):
     eval_config.num_steps = 1
 
     with tf.Graph().as_default(), tf.Session() as session:
-        initializer = tf.uniform_unit_scaling_initializer()
+        initializer = tf.initializers.variance_scaling(distribution='uniform')
         with tf.variable_scope("model", reuse=None, initializer=initializer):
             m = PTBModel(is_training=True, config=config)
         with tf.variable_scope("model", reuse=True, initializer=initializer):

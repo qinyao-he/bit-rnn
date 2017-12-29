@@ -4,7 +4,7 @@ import functools
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.models.rnn.ptb import reader
+import reader
 
 import bit_utils
 from bit_rnn_cell import BitGRUCell, BitLSTMCell
@@ -48,20 +48,20 @@ class PTBModel(object):
             inputs = tf.nn.dropout(inputs, config.keep_prob)
 
         inputs = [tf.squeeze(input_, [1])
-                  for input_ in tf.split(1, num_steps, inputs)]
-        outputs, state = tf.nn.rnn(cell, inputs,
-                                   initial_state=self._initial_state)
+                  for input_ in tf.split(value=inputs, num_or_size_splits=num_steps, axis=1)]
+        outputs, state = tf.contrib.rnn.static_rnn(cell, inputs,
+                                                   initial_state=self._initial_state)
 
-        output = tf.reshape(tf.concat(1, outputs), [-1, size])
+        output = tf.reshape(tf.concat(values=outputs, axis=1), [-1, size])
         with bit_utils.replace_variable(
                 lambda x: bit_utils.quantize_w(tf.tanh(x), bit=config.w_bit)):
             softmax_w = tf.get_variable("softmax_w", [size, vocab_size])
         softmax_b = tf.get_variable("softmax_b", [vocab_size])
         logits = tf.matmul(output, softmax_w) + softmax_b
-        loss = tf.nn.seq2seq.sequence_loss_by_example(
-                [logits],
-                [tf.reshape(self._targets, [-1])],
-                [tf.ones([batch_size * num_steps])])
+        loss = tf.contrib.legacy_seq2seq.sequence_loss_by_example(
+            [logits],
+            [tf.reshape(self._targets, [-1])],
+            [tf.ones([batch_size * num_steps])])
         self._cost = cost = tf.reduce_sum(loss) / batch_size
         self._final_state = state
 
