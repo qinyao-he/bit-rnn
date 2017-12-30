@@ -6,7 +6,7 @@ The implementation of PTB language model is modified from examples in [tensorflo
 
 ## Requirments
 
-Currently tested and run on [TensorFlow](https://www.tensorflow.org) 0.12 and Python 3.5. View other branches for legacy support.
+Currently tested and run on [TensorFlow](https://www.tensorflow.org) 1.4 and Python 3.6. View other branches for legacy support.
 You may download the data from [http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz](http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz).
 
 ## Run
