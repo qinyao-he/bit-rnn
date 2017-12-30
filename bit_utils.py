@@ -17,6 +17,7 @@ def _new_get_variable(*args, **kwargs):
 
 
 class TFVariableReplaceHelper(object):
+
     def __init__(self, fn):
         self._old_get_variable = None
         self._fn = fn

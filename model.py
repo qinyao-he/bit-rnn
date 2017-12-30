@@ -25,12 +25,13 @@ class PTBModel(object):
         if 'cell_type' not in dir(config) or config.cell_type == 'gru':
             cell = BitGRUCell(size, w_bit=config.w_bit, f_bit=config.f_bit)
         elif config.cell_type == 'lstm':
-            cell = BitLSTMCell(size, w_bit=config.w_bit, f_bit=config.f_bit)
+            cell = BitLSTMCell(size, w_bit=config.w_bit,
+                               f_bit=config.f_bit, state_is_tuple=False)
         if is_training and config.keep_prob < 1:
             cell = tf.nn.rnn_cell.DropoutWrapper(
                 cell, output_keep_prob=config.keep_prob)
-        cell = tf.nn.rnn_cell.MultiRNNCell([cell] * config.num_layers,
-                                           state_is_tuple=False)
+        cell = tf.nn.rnn_cell.MultiRNNCell(
+            [cell] * config.num_layers, state_is_tuple=False)
 
         self._initial_state = cell.zero_state(batch_size, tf.float32)
         self._initial_state = bit_utils.round_bit(
