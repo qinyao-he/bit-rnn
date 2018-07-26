@@ -62,7 +62,7 @@ def main(_):
 
     with tf.Graph().as_default(), tf.Session() as session:
         initializer = tf.initializers.variance_scaling(distribution='uniform')
-        with tf.variable_scope("model", reuse=None, initializer=initializer):
+        with tf.variable_scope("model", reuse=tf.AUTO_REUSE, initializer=initializer):
             m = PTBModel(is_training=True, config=config)
         with tf.variable_scope("model", reuse=True, initializer=initializer):
             mvalid = PTBModel(is_training=False, config=config)
