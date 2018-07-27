@@ -1,5 +1,6 @@
 import tensorflow as tf
-from tensorflow.python.ops import rnn_cell_impl
+#from tensorflow.python.ops import rnn_cell_impl
+from tensorflow.contrib.rnn.python.ops import core_rnn_cell
 
 import bit_utils
 
@@ -18,6 +19,8 @@ class BitGRUCell(tf.nn.rnn_cell.GRUCell):
                                          reuse, kernel_initializer, bias_initializer)
         self._w_bit = w_bit
         self._f_bit = f_bit
+        self._gate_linear = None
+        self._candidate_linear = None
 
     def call(self, inputs, state):
         def replace_w(x):
@@ -33,7 +36,8 @@ class BitGRUCell(tf.nn.rnn_cell.GRUCell):
                     bias_ones = tf.constant_initializer(
                         1.0, dtype=inputs.dtype)
                 with tf.variable_scope("gates"):  # Reset gate and update gate.
-                    self._gate_linear = rnn_cell_impl._Linear(
+                    # self._gate_linear = rnn_cell_impl._Linear(
+                    self._gate_linear = core_rnn_cell._Linear(
                         [inputs, state],
                         2 * self._num_units,
                         True,
@@ -46,7 +50,8 @@ class BitGRUCell(tf.nn.rnn_cell.GRUCell):
             r_state = bit_utils.round_bit(r * state, bit=self._f_bit)
             if self._candidate_linear is None:
                 with tf.variable_scope("candidate"):
-                    self._candidate_linear = rnn_cell_impl._Linear(
+                    # self._candidate_linear = rnn_cell_impl._Linear(
+                    self._candidate_linear = core_rnn_cell._Linear(
                         [inputs, r_state],
                         self._num_units,
                         True,
@@ -67,6 +72,7 @@ class BitLSTMCell(tf.nn.rnn_cell.BasicLSTMCell):
             num_units, forget_bias, state_is_tuple, activation, reuse)
         self._w_bit = w_bit
         self._f_bit = f_bit
+        self._linear = None
 
     def call(self, inputs, state):
         def replace_w(x):
@@ -85,7 +91,8 @@ class BitLSTMCell(tf.nn.rnn_cell.BasicLSTMCell):
                 c, h = tf.split(value=state, num_or_size_splits=2, axis=1)
 
             if self._linear is None:
-                self._linear = rnn_cell_impl._Linear(
+                # self._linear = rnn_cell_impl._Linear(
+                self._linear = core_rnn_cell._Linear(
                     [inputs, h], 4 * self._num_units, True)
             # i = input_gate, j = new_input, f = forget_gate, o = output_gate
             i, j, f, o = tf.split(
